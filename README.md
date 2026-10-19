@@ -20,11 +20,27 @@ npm run dev -- --host  # para testar no celular pela rede local
 npm run check          # typecheck + lint + build
 ```
 
-## Publicação (GitHub Pages)
+## Publicação (Vercel)
 
-O workflow `.github/workflows/deploy.yml` faz o build e publica a cada push na `main`. No GitHub, ative uma vez: **Settings → Pages → Source: GitHub Actions**.
+No ar em **https://figurinhastricolores.vercel.app**.
 
-O build usa caminhos relativos (`base: './'`), então funciona com qualquer nome de repositório.
+- O projeto `figurinhastricolores` na Vercel está ligado a este repositório. Cada push na `main` publica em produção, e cada pull request ganha uma URL de preview.
+- A configuração de build, os headers de segurança e o cache ficam em [`vercel.json`](vercel.json).
+- O GitHub Actions ([`ci.yml`](.github/workflows/ci.yml)) só valida: `npm audit`, typecheck, lint e build.
+
+## Segurança
+
+- Headers de segurança aplicados em todas as respostas:
+  - CSP restritiva (só o próprio domínio);
+  - HSTS;
+  - `X-Frame-Options: DENY`;
+  - `nosniff`;
+  - `Referrer-Policy`;
+  - `Permissions-Policy`;
+  - COOP/CORP.
+- Sem backend, sem cookies e sem coleta de dados.
+- Dependabot e `npm audit` no CI.
+- Para reportar vulnerabilidades, veja o [SECURITY.md](SECURITY.md).
 
 ## Requisitos técnicos
 

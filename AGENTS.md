@@ -9,7 +9,7 @@ Webapp para criar **figurinhas de WhatsApp com frases da torcida gremista**: fun
 
 - **Fluxo:** o usuário digita a frase (ou escolhe uma pronta), escolhe o fundo, ajusta o texto e baixa/compartilha um **PNG 512×512**. Depois, ele cria a figurinha pelo criador nativo do WhatsApp.
 - **Público:** torcedores, majoritariamente no celular. Por isso a UI é **mobile-first** e em **pt-BR**.
-- **Arquitetura:** 100% client-side, sem backend, publicado no GitHub Pages.
+- **Arquitetura:** 100% client-side, sem backend, publicado na **Vercel** (projeto `figurinhastricolores`, https://figurinhastricolores.vercel.app). Cada push na `main` vai para produção e cada PR ganha um preview.
 
 ### Layouts atuais
 | id | Faixas (cima → baixo) | Modos de texto |
@@ -43,7 +43,10 @@ src/
   components/       # UI React, fina: só estado e controles
   data/frases.ts    # frases prontas por categoria
   App.tsx           # estado das opções + pré-renderização do PNG
-.github/workflows/deploy.yml  # CI: typecheck, lint, build e deploy no Pages (push na main)
+vercel.json                   # build na Vercel, headers de segurança (CSP etc.) e cache
+.github/workflows/ci.yml      # CI: npm audit, typecheck, lint e build (o deploy é da Vercel)
+.github/dependabot.yml        # atualizações semanais de npm e mensais de actions
+SECURITY.md                   # como reportar vulnerabilidades
 ```
 
 ## Regras e convenções
@@ -53,6 +56,9 @@ src/
 - **A saída é sempre 512×512.** A prévia escala por `devicePixelRatio`, mas a exportação não.
 - **Antes de desenhar, aguarde a fonte** (`ensureFontLoaded`). Sem isso, o canvas usa a fonte de fallback.
 - **Compartilhar depende do gesto do usuário:** o PNG é pré-renderizado em `App.tsx` para o `navigator.share` ser chamado logo após o toque, porque o Safari exige isso. Não troque por uma renderização síncrona no clique.
+- **CSP restritiva (`vercel.json`):** só recursos do próprio domínio, sem `<script>` inline e sem CDN externa.
+  - Fontes, imagens e scripts devem ser empacotados pelo Vite.
+  - Se um serviço externo for necessário (ex.: analytics), libere só o domínio dele na diretiva certa da CSP e documente aqui.
 - **Sem marcas oficiais:** não use escudo, logotipo nem nome do clube como marca do app. Use só as cores. O rodapé avisa que o app é não oficial.
 - **UI e textos em pt-BR**, com acentuação correta. Identificadores de código em inglês ou português, seguindo o arquivo ao redor.
 - **Estilo:** sem ponto e vírgula, aspas simples, 2 espaços (ver `.editorconfig`). CSS puro em `src/index.css`, com variáveis em `:root`.
@@ -65,6 +71,8 @@ src/
 - **Nova cor ou fonte:** `COLORS` / `FONTS` em `src/sticker/theme.ts`. Fonte nova: instale `@fontsource/<nome>` e importe o CSS em `src/main.tsx`.
 
 ## Roadmap
+
+Detalhado em `docs/ROADMAP.md`, com os 6 caminhos e a ordem das etapas A–D. O arquivo é local: está no `.gitignore` e pode não existir em outro clone. Resumo:
 
 - **Backlog web:**
   - PWA/offline.
